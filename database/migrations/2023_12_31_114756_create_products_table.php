@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre')->unique()->require();
-            $table->string('foto')->default('default.png');
+            $table->string('nombre')->unique();
             $table->float('cantidad')->default(0.00);
             $table->float('precio_menor')->default(0.00);
-            $table->float('precio_mayor')->default(0.00);
+            $table->unsignedBigInteger('prometheus_id');
             $table->timestamps();
         });
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DispatchController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -38,5 +39,11 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
+    /* Inventario */
     Route::get('/inventario', [ProductController::class, 'index'])->name('inventario');
+
+    /* Despachos */
+    Route::get('/despachos', [DispatchController::class, 'index'])->name('despachos');
+    Route::post('/despachos/new-dispatches', [DispatchController::class, 'newDispatches']);
+    Route::post('/despachos/procesar', [DispatchController::class, 'procesar']);
 });

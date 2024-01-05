@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import DropdownLink from '@/Components/DropdownLink.vue';
 
 defineProps({
     products: Array,
@@ -24,15 +25,21 @@ defineProps({
 
                         <TextInput placeholder="Buscar..." />
 
-                        <PrimaryButton type="button">
-                            <slot v-if="products.length > 0">
-                                Actualizar
-                            </slot>
+                        <div v-if="products.length > 0">
+                            <PrimaryButton type="button">
+                                <slot>
+                                    Actualizar
+                                </slot>
+                            </PrimaryButton>
+                        </div>
 
-                            <slot v-else>
-                                Despachos
-                            </slot>
-                        </PrimaryButton>
+                        <div v-else>
+                            <PrimaryButton type="button">
+                                <slot>
+                                    <a href="/despachos">Ir a Despachos</a>
+                                </slot>
+                            </PrimaryButton>
+                        </div>
 
                     </div>
 

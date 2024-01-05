@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('dispatches', function (Blueprint $table) {
             $table->id();
-            $table->enum('status', ['espera', 'aceptado']);
-            $table->unsignedBigInteger('id_prometheus');
+            $table->enum('status', ['espera', 'aceptado', 'rechazado']);
+            $table->unsignedBigInteger('prometheus_id');
             $table->timestamps();
         });
     }
