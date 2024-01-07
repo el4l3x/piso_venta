@@ -2,11 +2,17 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import DropdownLink from '@/Components/DropdownLink.vue';
+import { reactive } from 'vue';
 
-defineProps({
-    products: Array,
+const props = defineProps({
+    products: {
+        Array,
+        require: true,
+    },
 });
+
+const productsTable = reactive(props.products);
+
 </script>
 
 <template>
@@ -43,8 +49,39 @@ defineProps({
 
                     </div>
 
-                    <div v-if="products.length > 0">
+                    <div class="mt-4" v-if="products.length > 0">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                        Nombre</th>
+                                    <th
+                                        class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                        Cantidad</th>
+                                    <th
+                                        class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                                        Precio</th>
+                                </tr>
+                            </thead>
 
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-200" v-for="product in productsTable" :key="product.id">
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ product.nombre }}
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ product.cantidad }}
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                                        {{ product.precio_menor }}
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div v-else class="flex mt-10">

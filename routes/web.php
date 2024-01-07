@@ -44,6 +44,8 @@ Route::middleware([
 
     /* Despachos */
     Route::get('/despachos', [DispatchController::class, 'index'])->name('despachos');
+    Route::get('/despachos/buscar', [DispatchController::class, 'buscar']);
     Route::post('/despachos/new-dispatches', [DispatchController::class, 'newDispatches']);
     Route::post('/despachos/procesar', [DispatchController::class, 'procesar']);
+    Route::post('/despachos/max-id', [DispatchController::class, 'maxIdDispatch']);
 });

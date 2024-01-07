@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateDispatchRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
@@ -18,12 +19,26 @@ class DispatchController extends Controller
      */
     public function index()
     {
-        $dispatches = Dispatch::all();
+        $dispatches = Dispatch::paginate(5);
 
         return Inertia::render('Dispatches/index', [
             'dispatches'    => $dispatches,
             'id'            => env('PISO_ID'),
             'apiToken'     => env('APP_KEY'),
+        ]);
+    }
+
+    public function buscar(Request $request)
+    {
+        if ($request->startDate != 'null' && $request->startDate != null) {
+            $dispatches = Dispatch::whereDate('created_at', $request->startDate)->paginate($request->records);
+        } else {
+            $dispatches = Dispatch::paginate($request->records);
+        }        
+
+        return response([
+            'registros' => $dispatches,
+            'request'   => $request->all()
         ]);
     }
 
@@ -117,7 +132,7 @@ class DispatchController extends Controller
 
             return response([
                 'error'     => false,
-                'despachos' => Dispatch::select('id', 'created_at', 'status', 'prometheus_id')->get(),
+                'despachos' => Dispatch::select('id', 'created_at', 'status', 'prometheus_id')->paginate(5),
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -145,7 +160,7 @@ class DispatchController extends Controller
         if ($validator->fails()) {
             return response([
                 'error'         => true,
-                'errorMessage'  => 'Fallo la validacion',
+                'errorMessage'  => 'Fallo la validacion de los datos.',
                 'errors'        => $validator->errors(),
             ]);
         }
@@ -164,21 +179,48 @@ class DispatchController extends Controller
                 }
             }
 
-            DB::commit();
-
-            return response([
-                'error'     => false,
-                'despachos' => Dispatch::select('id', 'created_at', 'status', 'prometheus_id')->get(),
+            $response = Http::post('http://mipuchito.test/api/despachos/procesar', [
+                'data'          => [
+                    'apiToken' => env('APP_KEY'),
+                    'idBranch' => env('PISO_ID'),
+                    'dispatchId'    => $dispatch->prometheus_id,
+                    'status'        => $request->data['status'],
+                ],                
             ]);
+
+            if ($response->successful()) {
+                DB::commit();
+                return response([
+                    'error'         => false,
+                    'data'          => $response->body(),
+                    'dispatches'    => Dispatch::paginate(5),
+                ]);
+            } else {
+                DB::rollBack();
+                return response([
+                    'error'         => true,
+                    'errorMessage'  => 'Fallo la conexion con el servidor. Por favor intenta mas tarde.',
+                    'data'          => $response->body(),
+                ]);
+            }
+
         } catch (\Throwable $th) {
             DB::rollBack();
 
             return response([
                 'error'         => true,
-                'errorMessage'  => 'Fallo la query',
+                'errorMessage'  => 'Fallo el sistema. Por favor intenta mas tarde.',
                 'errorData'     => $th->getMessage(),
                 'errorLine'     => $th->getLine(),
             ]);
         }
+    }
+
+    public function maxIdDispatch() {
+        $idDispatch = Dispatch::max('prometheus_id');
+
+        return response([
+            'idDispatch' => $idDispatch
+        ]);
     }
 }
